@@ -9,7 +9,7 @@ except ImportError:
     from datetime import datetime
     datetime_now = datetime.now
 
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -84,7 +84,7 @@ def db_to_email(data):
 
 class Message(models.Model):
     
-    # The actual data - a pickled EmailMessage
+    # The actual data - a pickled EmailMultiAlternatives
     message_data = models.TextField()
     when_added = models.DateTimeField(default=datetime_now)
     priority = models.CharField(max_length=1, choices=PRIORITIES, default="2")
@@ -116,7 +116,7 @@ class Message(models.Model):
         self.message_data = email_to_db(val)
     
     email = property(_get_email, _set_email, doc=
-                     """EmailMessage object. If this is mutated, you will need to
+                     """EmailMultiAlternatives object. If this is mutated, you will need to
 set the attribute again to cause the underlying serialised data to be updated.""")
     
     @property
@@ -148,20 +148,20 @@ def filter_recipient_list(lst):
     return retval
 
 
-def make_message(subject="", body="", from_email=None, to=None, bcc=None,
+def make_message(subject="", body="", body_html="", from_email=None, to=None, bcc=None,
                  attachments=None, headers=None, priority=None):
     """
     Creates a simple message for the email parameters supplied.
     The 'to' and 'bcc' lists are filtered using DontSendEntry.
     
-    If needed, the 'email' attribute can be set to any instance of EmailMessage
+    If needed, the 'email' attribute can be set to any instance of EmailMultiAlternatives
     if e-mails with attachments etc. need to be supported.
     
     Call 'save()' on the result when it is ready to be sent, and not before.
     """
     to = filter_recipient_list(to)
     bcc = filter_recipient_list(bcc)
-    core_msg = EmailMessage(
+    core_msg = EmailMultiAlternatives(
         subject=subject,
         body=body,
         from_email=from_email,
@@ -170,6 +170,8 @@ def make_message(subject="", body="", from_email=None, to=None, bcc=None,
         attachments=attachments,
         headers=headers
     )
+    if body_html:
+        core_msg.attach_alternative(body_html, 'text/html')
     db_msg = Message(priority=priority)
     db_msg.email = core_msg
     return db_msg
