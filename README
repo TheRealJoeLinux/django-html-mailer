@@ -1,4 +1,3 @@
-django-mailer by James Tauber <http://jtauber.com/>
-http://code.google.com/p/django-mailer/
+A fork of http://github.com/pinax/django-mailer
 
-A reusable Django app for queuing the sending of email
+This version of django-mailer will allow you to add an HTML email body so that both plain text and HTML versions of an email can be sent simultaneously.
