@@ -1,3 +1,4 @@
+(Work In Progress)
 A fork of http://github.com/pinax/django-mailer
 
 This version of django-mailer will allow you to add an HTML email body so that both plain text and HTML versions of an email can be sent simultaneously.
